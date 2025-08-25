@@ -26,15 +26,22 @@ io.on('connection',  (socket) => {
 
     //connect
     socket.on("addUser", userData => {
+
         addUser(userData, socket.id);
         io.emit("getUsers", users);
     })
 
     //send message
     socket.on('sendMessage', (data) => {
-        const user = getUser(data.receiverId);
-        io.to(user.socketId).emit('getMessage', data)
-    })
+    const user = getUser(data.receiverId);
+
+    if (user && user.socketId) {
+        io.to(user.socketId).emit('getMessage', data);
+    } else {
+        console.log(`Receiver ${data.receiverId} not connected`);
+    }
+});
+
 
     //disconnect
     socket.on('disconnect', () => {
